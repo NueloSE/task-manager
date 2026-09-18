@@ -1,3 +1,4 @@
+import { ListChecks, LogOut } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, Route, Routes, useNavigate } from 'react-router';
 import { api, type User } from './api';
@@ -25,10 +26,10 @@ export default function App() {
   return (
     <>
       <header>
-        <Link to="/" className="logo"><span className="logo-icon">✓</span> Task Manager</Link>
+        <Link to="/" className="logo"><span className="logo-icon"><ListChecks size={18} /></span> Task Manager</Link>
         {user && (
           <div>
-            <span className="muted">{user.username}</span> <button className="secondary" onClick={logout}>Log out</button>
+            <span className="muted">{user.username}</span> <button className="secondary" onClick={logout}><LogOut size={16} /> Log out</button>
           </div>
         )}
       </header>

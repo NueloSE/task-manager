@@ -1,3 +1,4 @@
+import { Calendar, ChevronLeft, ChevronRight, Plus, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { api, formatDate, isOverdue, STATUS_LABELS, type TaskPage } from '../api';
@@ -24,16 +25,19 @@ export default function TaskList() {
     <>
       <div className="row">
         <h1>My tasks</h1>
-        <Link to="/tasks/new" className="button">+ New task</Link>
+        <Link to="/tasks/new" className="button"><Plus size={16} /> New task</Link>
       </div>
 
       <div className="toolbar">
-        <input
-          type="search"
-          placeholder="Search tasks..."
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-        />
+        <div className="search">
+          <Search size={16} />
+          <input
+            type="search"
+            placeholder="Search tasks..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          />
+        </div>
         <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
           <option value="">All tasks</option>
           {Object.entries(STATUS_LABELS).map(([value, label]) => (
@@ -50,8 +54,8 @@ export default function TaskList() {
             <Link to={`/tasks/${task.id}`} className={`card ${task.status}`}>
               <strong>{task.title}</strong>
               <span className={`badge ${task.status}`}>{STATUS_LABELS[task.status]}</span>
-              <small className="muted">
-                Due {formatDate(task.dueDate)}
+              <small className="muted icon-text">
+                <Calendar size={14} /> Due {formatDate(task.dueDate)}
                 {isOverdue(task) && <span className="overdue-tag">Overdue</span>}
               </small>
             </Link>
@@ -62,11 +66,11 @@ export default function TaskList() {
       {data.totalPages > 1 && (
         <div className="pagination">
           <button className="secondary" disabled={page === 1} onClick={() => setPage(page - 1)}>
-            Previous
+            <ChevronLeft size={16} /> Previous
           </button>
           <span>Page {page} of {data.totalPages}</span>
           <button className="secondary" disabled={page === data.totalPages} onClick={() => setPage(page + 1)}>
-            Next
+            Next <ChevronRight size={16} />
           </button>
         </div>
       )}

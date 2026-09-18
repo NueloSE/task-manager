@@ -1,3 +1,4 @@
+import { ArrowLeft, Calendar, Pencil, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { api, formatDate, isOverdue, STATUS_LABELS, type Task } from '../api';
@@ -33,16 +34,16 @@ export default function TaskDetail() {
       </div>
 
       <p className="description">{task.description || <span className="muted">No description</span>}</p>
-      <p>
-        Due: {formatDate(task.dueDate)}
+      <p className="icon-text">
+        <Calendar size={16} /> Due: {formatDate(task.dueDate)}
         {isOverdue(task) && <span className="overdue-tag">Overdue</span>}
       </p>
       <p className="muted">Created: {new Date(task.createdAt).toLocaleString()}</p>
 
       <div className="actions">
-        <Link to="/">Back</Link>
-        <button className="danger" onClick={handleDelete}>Delete</button>
-        <Link to={`/tasks/${id}/edit`} className="button">Edit</Link>
+        <Link to="/" className="icon-text"><ArrowLeft size={16} /> Back</Link>
+        <button className="danger" onClick={handleDelete}><Trash2 size={16} /> Delete</button>
+        <Link to={`/tasks/${id}/edit`} className="button"><Pencil size={16} /> Edit</Link>
       </div>
     </div>
   );

@@ -85,6 +85,12 @@ a {
   color: #6b7280;
 }
 
+.icon-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* Task list */
 
 .toolbar {
@@ -99,6 +105,23 @@ a {
 
 .toolbar select {
   width: auto;
+}
+
+.search {
+  position: relative;
+  flex: 1;
+}
+
+.search svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+.search input {
+  padding-left: 34px;
 }
 
 .task-list {
@@ -217,6 +240,9 @@ select:focus {
 
 button,
 .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 14px;
   border: none;
   border-radius: 6px;
