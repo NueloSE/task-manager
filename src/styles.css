@@ -149,6 +149,7 @@ a {
   border-radius: 999px;
   background: none;
   color: #475569;
+  font-size: 0.9rem;
 }
 
 .tab:hover {
@@ -160,16 +161,20 @@ a {
   color: white;
 }
 
+/* Same pill shape and height as the tabs, pushed to the right edge */
 .delete-done {
   margin-left: auto;
-  padding: 6px 10px;
-  background: none;
+  padding: 6px 14px;
+  border-color: #fecaca;
+  border-radius: 999px;
+  background: white;
   color: #dc2626;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .delete-done:hover {
-  background: #fee2e2;
+  border-color: #fca5a5;
+  background: #fef2f2;
 }
 
 .toolbar {
