@@ -50,7 +50,7 @@ export default function App() {
 
       <footer>
         Task Manager · Built for the PowerLabs internship assessment ·{' '}
-        <a href="https://github.com/NueloSE/task-manager">Source code</a>
+        <a href="https://github.com/NueloSE/task-manager" target="_blank" rel="noreferrer">Source code</a>
       </footer>
     </>
   );
