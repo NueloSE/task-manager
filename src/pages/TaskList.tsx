@@ -46,9 +46,8 @@ export default function TaskList() {
         </select>
       </div>
 
-      {data.tasks.length === 0 && <p className="empty">No tasks found.</p>}
-
       <ul className="task-list">
+        {data.tasks.length === 0 && <li className="empty">No tasks found.</li>}
         {data.tasks.map((task) => (
           <li key={task.id}>
             <Link to={`/tasks/${task.id}`} className={`card ${task.status}`}>
@@ -63,17 +62,15 @@ export default function TaskList() {
         ))}
       </ul>
 
-      {data.totalPages > 1 && (
-        <div className="pagination">
-          <button className="secondary" disabled={page === 1} onClick={() => setPage(page - 1)}>
-            <ChevronLeft size={16} /> Previous
-          </button>
-          <span>Page {page} of {data.totalPages}</span>
-          <button className="secondary" disabled={page === data.totalPages} onClick={() => setPage(page + 1)}>
-            Next <ChevronRight size={16} />
-          </button>
-        </div>
-      )}
+      <div className="pagination">
+        <button className="secondary" disabled={page === 1} onClick={() => setPage(page - 1)}>
+          <ChevronLeft size={16} /> Previous
+        </button>
+        <span>Page {page} of {data.totalPages}</span>
+        <button className="secondary" disabled={page >= data.totalPages} onClick={() => setPage(page + 1)}>
+          Next <ChevronRight size={16} />
+        </button>
+      </div>
     </>
   );
 }
