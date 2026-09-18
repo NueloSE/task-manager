@@ -6,7 +6,7 @@ Built with React + TypeScript (Vite) for the frontend and Express + TypeScript +
 
 ## Running it
 
-You need Node.js 22.22 or newer (there's an `.nvmrc`, so `nvm use` works).
+You need Node.js 22.22 or newer (there's an `.nvmrc`, so `nvm use` works). The SQLite library crashes on Node 20, so `npm install` refuses to run on older versions.
 
 ```bash
 npm install
