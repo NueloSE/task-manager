@@ -1,20 +1,24 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { api, formatDate, isOverdue, STATUS_LABELS, type Task } from '../api';
+import { api, formatDate, isOverdue, STATUS_LABELS, type TaskPage } from '../api';
 
 export default function TaskList() {
-  const [tasks, setTasks] = useState<Task[]>();
-  const [filter, setFilter] = useState('all');
+  const [data, setData] = useState<TaskPage>();
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('');
+  const [page, setPage] = useState(1);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    api.getTasks().then(setTasks).catch((err) => setError(err.message));
-  }, []);
+    // Wait until the user stops typing before searching
+    const timer = setTimeout(() => {
+      api.getTasks(search, status, page).then(setData).catch((err) => setError(err.message));
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search, status, page]);
 
   if (error) return <p className="error">{error}</p>;
-  if (!tasks) return <p>Loading...</p>;
-
-  const visible = filter === 'all' ? tasks : tasks.filter((task) => task.status === filter);
+  if (!data) return <p>Loading...</p>;
 
   return (
     <>
@@ -23,17 +27,25 @@ export default function TaskList() {
         <Link to="/tasks/new" className="button">+ New task</Link>
       </div>
 
-      <select className="filter" value={filter} onChange={(e) => setFilter(e.target.value)}>
-        <option value="all">All tasks</option>
-        {Object.entries(STATUS_LABELS).map(([value, label]) => (
-          <option key={value} value={value}>{label}</option>
-        ))}
-      </select>
+      <div className="toolbar">
+        <input
+          type="search"
+          placeholder="Search tasks..."
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+        />
+        <select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
+          <option value="">All tasks</option>
+          {Object.entries(STATUS_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+      </div>
 
-      {visible.length === 0 && <p className="muted">No tasks here yet.</p>}
+      {data.tasks.length === 0 && <p className="muted">No tasks found.</p>}
 
       <ul className="task-list">
-        {visible.map((task) => (
+        {data.tasks.map((task) => (
           <li key={task.id}>
             <Link to={`/tasks/${task.id}`} className="card">
               <strong>{task.title}</strong>
@@ -45,6 +57,18 @@ export default function TaskList() {
           </li>
         ))}
       </ul>
+
+      {data.totalPages > 1 && (
+        <div className="pagination">
+          <button className="secondary" disabled={page === 1} onClick={() => setPage(page - 1)}>
+            Previous
+          </button>
+          <span>Page {page} of {data.totalPages}</span>
+          <button className="secondary" disabled={page === data.totalPages} onClick={() => setPage(page + 1)}>
+            Next
+          </button>
+        </div>
+      )}
     </>
   );
 }

@@ -5,6 +5,7 @@ export const tasksRouter = Router();
 
 const COLUMNS = 'id, title, description, status, dueDate, createdAt';
 const STATUSES = ['todo', 'in_progress', 'done'];
+const PAGE_SIZE = 5;
 
 // Checks the request body and returns either an error message or the cleaned-up task
 function readTask(body: any) {
@@ -33,11 +34,26 @@ function findTask(id: unknown, userId: number) {
   return db.prepare(`SELECT ${COLUMNS} FROM tasks WHERE id = ? AND userId = ?`).get(id, userId);
 }
 
+// GET /api/tasks?search=report&status=todo&page=2
 tasksRouter.get('/', (req, res) => {
+  const page = Math.max(1, parseInt(String(req.query.page)) || 1);
+  const params = {
+    userId: res.locals.user.id,
+    search: `%${req.query.search ?? ''}%`,
+    status: String(req.query.status ?? ''),
+  };
+
+  // An empty status means "any status"
+  const where = `WHERE userId = @userId
+    AND (title LIKE @search OR description LIKE @search)
+    AND (@status = '' OR status = @status)`;
+
+  const { total } = db.prepare(`SELECT COUNT(*) AS total FROM tasks ${where}`).get(params) as { total: number };
   const tasks = db
-    .prepare(`SELECT ${COLUMNS} FROM tasks WHERE userId = ? ORDER BY dueDate`)
-    .all(res.locals.user.id);
-  res.json(tasks);
+    .prepare(`SELECT ${COLUMNS} FROM tasks ${where} ORDER BY dueDate LIMIT @limit OFFSET @offset`)
+    .all({ ...params, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE });
+
+  res.json({ tasks, page, totalPages: Math.max(1, Math.ceil(total / PAGE_SIZE)) });
 });
 
 tasksRouter.get('/:id', (req, res) => {

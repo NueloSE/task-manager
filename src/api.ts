@@ -11,6 +11,8 @@ export type Task = {
 
 export type TaskInput = Omit<Task, 'id' | 'createdAt'>;
 
+export type TaskPage = { tasks: Task[]; page: number; totalPages: number };
+
 export type User = { id: number; username: string };
 
 export const STATUS_LABELS: Record<Status, string> = {
@@ -39,7 +41,8 @@ export const api = {
   register: (username: string, password: string) => request<User>('/auth/register', 'POST', { username, password }),
   logout: () => request<void>('/auth/logout', 'POST'),
 
-  getTasks: () => request<Task[]>('/tasks'),
+  getTasks: (search: string, status: string, page: number) =>
+    request<TaskPage>(`/tasks?${new URLSearchParams({ search, status, page: String(page) })}`),
   getTask: (id: string) => request<Task>(`/tasks/${id}`),
   createTask: (task: TaskInput) => request<Task>('/tasks', 'POST', task),
   updateTask: (id: string, task: TaskInput) => request<Task>(`/tasks/${id}`, 'PUT', task),

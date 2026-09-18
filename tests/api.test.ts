@@ -25,7 +25,7 @@ describe('tasks', () => {
     expect(created.body.createdAt).toBeTruthy();
     const url = `/api/tasks/${created.body.id}`;
 
-    expect((await user.get('/api/tasks')).body).toHaveLength(1);
+    expect((await user.get('/api/tasks')).body.tasks).toHaveLength(1);
     expect((await user.get(url)).body.title).toBe('Write README');
 
     const updated = await user.put(url).send({ ...task, status: 'done' }).expect(200);
@@ -33,6 +33,27 @@ describe('tasks', () => {
 
     await user.delete(url).expect(204);
     await user.get(url).expect(404);
+  });
+
+  it('searches, filters and pages through tasks', async () => {
+    const user = await signUp('alice');
+    for (let day = 1; day <= 6; day++) {
+      await user.post('/api/tasks').send({ ...task, title: `Task ${day}`, dueDate: `2026-10-0${day}` });
+    }
+    await user.post('/api/tasks').send({ ...task, title: 'Buy milk', status: 'done' });
+
+    const page1 = await user.get('/api/tasks');
+    expect(page1.body.tasks).toHaveLength(5);
+    expect(page1.body.totalPages).toBe(2);
+
+    const page2 = await user.get('/api/tasks?page=2');
+    expect(page2.body.tasks).toHaveLength(2);
+
+    const search = await user.get('/api/tasks?search=MILK');
+    expect(search.body.tasks.map((t: { title: string }) => t.title)).toEqual(['Buy milk']);
+
+    const done = await user.get('/api/tasks?status=done');
+    expect(done.body.tasks).toHaveLength(1);
   });
 
   it('rejects invalid tasks', async () => {
@@ -70,7 +91,7 @@ describe('tasks', () => {
     const bob = await signUp('bob');
     const { body } = await alice.post('/api/tasks').send(task).expect(201);
 
-    expect((await bob.get('/api/tasks')).body).toEqual([]);
+    expect((await bob.get('/api/tasks')).body.tasks).toEqual([]);
     await bob.get(`/api/tasks/${body.id}`).expect(404);
     await bob.put(`/api/tasks/${body.id}`).send(task).expect(404);
     await bob.delete(`/api/tasks/${body.id}`).expect(404);
@@ -119,6 +140,6 @@ describe('auth', () => {
   it('has a demo account with sample tasks', async () => {
     const agent = request.agent(app);
     await agent.post('/api/auth/login').send({ username: 'demo', password: 'demo1234' }).expect(200);
-    expect((await agent.get('/api/tasks')).body.length).toBeGreaterThan(0);
+    expect((await agent.get('/api/tasks')).body.tasks.length).toBeGreaterThan(0);
   });
 });

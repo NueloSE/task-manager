@@ -64,9 +64,25 @@ a {
 
 /* Task list */
 
-.filter {
+.toolbar {
+  display: flex;
+  gap: 8px;
+}
+
+.toolbar input,
+.toolbar select {
+  margin: 0;
+}
+
+.toolbar select {
   width: auto;
-  margin-bottom: 12px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
 }
 
 .task-list {
@@ -153,9 +169,12 @@ button:disabled {
 }
 
 button.secondary {
-  margin-left: 8px;
   background: #e5e7eb;
   color: #222;
+}
+
+header button {
+  margin-left: 8px;
 }
 
 button.danger {

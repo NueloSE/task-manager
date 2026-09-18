@@ -61,11 +61,17 @@ In development, Vite serves the React app on port 5173 and forwards `/api` reque
 | POST   | `/api/auth/login`    | Log in              |
 | POST   | `/api/auth/logout`   | Log out             |
 | GET    | `/api/auth/me`       | Current user        |
-| GET    | `/api/tasks`         | List my tasks       |
+| GET    | `/api/tasks`         | List my tasks (see below) |
 | POST   | `/api/tasks`         | Create a task       |
 | GET    | `/api/tasks/:id`     | Get one task        |
 | PUT    | `/api/tasks/:id`     | Update a task       |
 | DELETE | `/api/tasks/:id`     | Delete a task       |
+
+`GET /api/tasks` takes optional `search`, `status` and `page` query parameters, e.g. `/api/tasks?search=report&status=todo&page=2`. It returns 5 tasks per page:
+
+```json
+{ "tasks": [...], "page": 2, "totalPages": 3 }
+```
 
 Errors come back as `{ "error": "message" }` with a status code: 400 for invalid input or broken JSON, 401 when not logged in, 404 when a task doesn't exist, 409 when a username is taken, and 500 for anything unexpected.
 
@@ -76,6 +82,7 @@ Errors come back as `{ "error": "message" }` with a status code: 400 for invalid
 - **Login.** The brief describes a single user, but a task list should be private, so I added accounts. Passwords are hashed with bcrypt. After logging in, the server puts a JWT in an httpOnly cookie, so JavaScript on the page can't read it.
 - **Each user only sees their own tasks.** Every task query includes the user's id. Asking for someone else's task returns a 404.
 - **Validation on both sides.** The form uses HTML validation (`required`, `maxLength`) for quick feedback. The server checks everything again because it can't trust the client.
+- **Search and pagination in SQL.** The list endpoint uses `LIKE` for search and `LIMIT`/`OFFSET` for pages, so the browser only loads one page at a time. The search box waits until you stop typing before it sends a request.
 - **One form for create and edit.** `TaskForm` checks the URL for an id to decide which one it's doing.
 
 ## Assumptions
@@ -90,4 +97,3 @@ Errors come back as `{ "error": "message" }` with a status code: 400 for invalid
 - No limit on login attempts.
 - No password reset.
 - Only the API has automated tests. The frontend was tested by hand.
-- No pagination or search. That's fine for a personal task list.

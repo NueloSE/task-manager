@@ -41,4 +41,7 @@ if (!db.prepare('SELECT id FROM users WHERE username = ?').get('demo')) {
   addTask.run(userId, 'Prepare weekly report', 'Summarise progress and blockers for the team.', 'in_progress', daysFromNow(1), now);
   addTask.run(userId, 'Pay electricity bill', 'Pay before the end of the week to avoid a late fee.', 'todo', daysFromNow(-2), now);
   addTask.run(userId, 'Book dentist appointment', '', 'done', daysFromNow(-5), now);
+  addTask.run(userId, 'Plan team lunch', 'Find a place that works for everyone.', 'todo', daysFromNow(7), now);
+  addTask.run(userId, 'Renew car insurance', '', 'todo', daysFromNow(10), now);
+  addTask.run(userId, 'Update CV', 'Add the latest project.', 'done', daysFromNow(-3), now);
 }
