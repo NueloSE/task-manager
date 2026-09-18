@@ -56,6 +56,39 @@ describe('tasks', () => {
     expect(done.body.tasks).toHaveLength(1);
   });
 
+  it('filters by due date: today, overdue and upcoming', async () => {
+    const user = await signUp('alice');
+    const tasks = [
+      ['Yesterday', '2026-10-01', 'todo'],
+      ['Yesterday but done', '2026-10-01', 'done'],
+      ['Today', '2026-10-02', 'todo'],
+      ['Tomorrow', '2026-10-03', 'todo'],
+    ];
+    for (const [title, dueDate, status] of tasks) {
+      await user.post('/api/tasks').send({ ...task, title, dueDate, status });
+    }
+
+    const titles = async (due: string) =>
+      (await user.get(`/api/tasks?due=${due}&today=2026-10-02`)).body.tasks.map((t: { title: string }) => t.title);
+
+    expect(await titles('today')).toEqual(['Today']);
+    expect(await titles('overdue')).toEqual(['Yesterday']);
+    expect(await titles('upcoming')).toEqual(['Tomorrow']);
+  });
+
+  it('deletes all my done tasks, and only mine', async () => {
+    const alice = await signUp('alice');
+    const bob = await signUp('bob');
+    await alice.post('/api/tasks').send({ ...task, status: 'done' });
+    await alice.post('/api/tasks').send({ ...task, status: 'todo' });
+    await bob.post('/api/tasks').send({ ...task, status: 'done' });
+
+    const res = await alice.delete('/api/tasks/done').expect(200);
+    expect(res.body.deleted).toBe(1);
+    expect((await alice.get('/api/tasks')).body.tasks).toHaveLength(1);
+    expect((await bob.get('/api/tasks')).body.tasks).toHaveLength(1);
+  });
+
   it('rejects invalid tasks', async () => {
     const user = await signUp('alice');
 

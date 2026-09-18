@@ -2,6 +2,8 @@
 
 A simple task manager for the PowerLabs internship assessment. You can sign up, log in, and create, view, edit and delete your own tasks.
 
+The task list also has search, a status filter, All / Today / Overdue / Upcoming tabs, pagination, a checkbox to mark tasks done, and a button to delete all done tasks.
+
 Built with React + TypeScript (Vite) for the frontend and Express + TypeScript + SQLite for the backend.
 
 ## Running it
@@ -47,6 +49,7 @@ src/
   App.tsx     checks if you're logged in and sets up the pages
   api.ts      fetch calls and shared types
   pages/      Login, TaskList, TaskDetail, TaskForm (used for both new and edit)
+  components/ ConfirmDialog (the "are you sure?" box for deleting)
 tests/
   api.test.ts
 ```
@@ -66,8 +69,9 @@ In development, Vite serves the React app on port 5173 and forwards `/api` reque
 | GET    | `/api/tasks/:id`     | Get one task        |
 | PUT    | `/api/tasks/:id`     | Update a task       |
 | DELETE | `/api/tasks/:id`     | Delete a task       |
+| DELETE | `/api/tasks/done`    | Delete all my done tasks |
 
-`GET /api/tasks` takes optional `search`, `status` and `page` query parameters, e.g. `/api/tasks?search=report&status=todo&page=2`. It returns 5 tasks per page:
+`GET /api/tasks` takes optional query parameters: `search`, `status`, `due` (`today`, `overdue` or `upcoming`), `today` (the browser's date) and `page`. For example: `/api/tasks?search=report&due=overdue&today=2026-09-18&page=2`. It returns 5 tasks per page:
 
 ```json
 { "tasks": [...], "page": 2, "totalPages": 3 }
@@ -84,6 +88,9 @@ Errors come back as `{ "error": "message" }` with a status code: 400 for invalid
 - **Validation on both sides.** The form uses HTML validation (`required`, `maxLength`) for quick feedback. The server checks everything again because it can't trust the client.
 - **Search and pagination in SQL.** The list endpoint uses `LIKE` for search and `LIMIT`/`OFFSET` for pages, so the browser only loads one page at a time. The search box waits until you stop typing before it sends a request.
 - **One form for create and edit.** `TaskForm` checks the URL for an id to decide which one it's doing.
+- **Today / Overdue / Upcoming use the browser's date.** The list sends its own `today` date to the API, so the tabs match the user's timezone rather than the server's.
+- **The done checkbox reuses `PUT /api/tasks/:id`**, so marking a task done didn't need a new endpoint.
+- **Deleting asks for confirmation** in a dialog built on the browser's `<dialog>` element, which handles the backdrop and the Esc key.
 
 ## Assumptions
 

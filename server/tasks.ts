@@ -23,7 +23,7 @@ function readTask(body: any) {
 }
 
 // JavaScript turns 2026-02-30 into March 2, so check the date didn't change
-function isValidDate(value: unknown) {
+function isValidDate(value: unknown): value is string {
   if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const date = new Date(value);
   return !isNaN(date.getTime()) && date.toISOString().startsWith(value);
@@ -34,19 +34,26 @@ function findTask(id: unknown, userId: number) {
   return db.prepare(`SELECT ${COLUMNS} FROM tasks WHERE id = ? AND userId = ?`).get(id, userId);
 }
 
-// GET /api/tasks?search=report&status=todo&page=2
+// GET /api/tasks?search=report&status=todo&due=overdue&today=2026-09-18&page=2
 tasksRouter.get('/', (req, res) => {
   const page = Math.max(1, parseInt(String(req.query.page)) || 1);
   const params = {
     userId: res.locals.user.id,
     search: `%${req.query.search ?? ''}%`,
     status: String(req.query.status ?? ''),
+    due: String(req.query.due ?? ''),
+    // The browser sends its own date, so "today" matches the user's timezone
+    today: isValidDate(req.query.today) ? req.query.today : new Date().toISOString().slice(0, 10),
   };
 
-  // An empty status means "any status"
+  // An empty status or due means "any"
   const where = `WHERE userId = @userId
     AND (title LIKE @search OR description LIKE @search)
-    AND (@status = '' OR status = @status)`;
+    AND (@status = '' OR status = @status)
+    AND (@due = ''
+      OR (@due = 'today' AND dueDate = @today)
+      OR (@due = 'overdue' AND dueDate < @today AND status != 'done')
+      OR (@due = 'upcoming' AND dueDate > @today))`;
 
   const { total } = db.prepare(`SELECT COUNT(*) AS total FROM tasks ${where}`).get(params) as { total: number };
   const tasks = db
@@ -89,6 +96,14 @@ tasksRouter.put('/:id', (req, res) => {
 
   if (!changes) return res.status(404).json({ error: 'Task not found' });
   res.json(findTask(req.params.id, res.locals.user.id));
+});
+
+// Must come before '/:id', otherwise "done" would be treated as a task id
+tasksRouter.delete('/done', (req, res) => {
+  const { changes } = db
+    .prepare("DELETE FROM tasks WHERE userId = ? AND status = 'done'")
+    .run(res.locals.user.id);
+  res.json({ deleted: changes });
 });
 
 tasksRouter.delete('/:id', (req, res) => {

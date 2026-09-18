@@ -1,28 +1,23 @@
 import { ArrowLeft, Calendar, Pencil, Trash2 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { api, formatDate, isOverdue, STATUS_LABELS, type Task } from '../api';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 export default function TaskDetail() {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const [task, setTask] = useState<Task>();
   const [error, setError] = useState('');
-  const [deleting, setDeleting] = useState(false);
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     api.getTask(id).then(setTask).catch((err) => setError(err.message));
   }, [id]);
 
   async function handleDelete() {
-    setDeleting(true);
-    try {
-      await api.deleteTask(id);
-      navigate('/');
-    } catch (err) {
-      setError((err as Error).message);
-    }
+    await api.deleteTask(id);
+    navigate('/');
   }
 
   if (error) return <p className="error">{error}. <Link to="/">Back to tasks</Link></p>;
@@ -44,21 +39,17 @@ export default function TaskDetail() {
 
       <div className="actions">
         <Link to="/" className="icon-text"><ArrowLeft size={16} /> Back</Link>
-        <button className="danger" onClick={() => dialogRef.current?.showModal()}><Trash2 size={16} /> Delete</button>
+        <button className="danger" onClick={() => setConfirmDelete(true)}><Trash2 size={16} /> Delete</button>
         <Link to={`/tasks/${id}/edit`} className="button"><Pencil size={16} /> Edit</Link>
       </div>
 
-      {/* showModal() opens this over the page with a dark backdrop. Esc closes it. */}
-      <dialog ref={dialogRef}>
-        <h2>Delete task?</h2>
-        <p className="muted">"{task.title}" will be deleted. This can't be undone.</p>
-        <div className="actions">
-          <button className="secondary" onClick={() => dialogRef.current?.close()}>Cancel</button>
-          <button className="danger" onClick={handleDelete} disabled={deleting}>
-            <Trash2 size={16} /> {deleting ? 'Deleting...' : 'Delete'}
-          </button>
-        </div>
-      </dialog>
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Delete task?"
+        message={`"${task.title}" will be deleted. This can't be undone.`}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </div>
   );
 }

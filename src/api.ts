@@ -41,17 +41,19 @@ export const api = {
   register: (username: string, password: string) => request<User>('/auth/register', 'POST', { username, password }),
   logout: () => request<void>('/auth/logout', 'POST'),
 
-  getTasks: (search: string, status: string, page: number) =>
-    request<TaskPage>(`/tasks?${new URLSearchParams({ search, status, page: String(page) })}`),
+  getTasks: (filters: { search: string; status: string; due: string; page: number }) =>
+    request<TaskPage>(`/tasks?${new URLSearchParams({ ...filters, page: String(filters.page), today: today() })}`),
   getTask: (id: string) => request<Task>(`/tasks/${id}`),
   createTask: (task: TaskInput) => request<Task>('/tasks', 'POST', task),
-  updateTask: (id: string, task: TaskInput) => request<Task>(`/tasks/${id}`, 'PUT', task),
-  deleteTask: (id: string) => request<void>(`/tasks/${id}`, 'DELETE'),
+  updateTask: (id: number | string, task: TaskInput) => request<Task>(`/tasks/${id}`, 'PUT', task),
+  deleteTask: (id: number | string) => request<void>(`/tasks/${id}`, 'DELETE'),
+  deleteDoneTasks: () => request<{ deleted: number }>('/tasks/done', 'DELETE'),
 };
 
 // Adding T00:00 makes the browser read the date in local time instead of UTC
 export const formatDate = (date: string) => new Date(date + 'T00:00').toDateString();
 
-// en-CA formats dates as YYYY-MM-DD, so it can be compared with dueDate
-export const isOverdue = (task: Task) =>
-  task.status !== 'done' && task.dueDate < new Date().toLocaleDateString('en-CA');
+// Today's date in the user's timezone. en-CA formats dates as YYYY-MM-DD, the same as dueDate.
+export const today = () => new Date().toLocaleDateString('en-CA');
+
+export const isOverdue = (task: Task) => task.status !== 'done' && task.dueDate < today();
