@@ -33,8 +33,9 @@ export default function TaskDetail() {
       </div>
 
       <p className="description">{task.description || <span className="muted">No description</span>}</p>
-      <p className={isOverdue(task) ? 'overdue' : ''}>
-        Due: {formatDate(task.dueDate)} {isOverdue(task) && '(overdue)'}
+      <p>
+        Due: {formatDate(task.dueDate)}
+        {isOverdue(task) && <span className="overdue-tag">Overdue</span>}
       </p>
       <p className="muted">Created: {new Date(task.createdAt).toLocaleString()}</p>
 

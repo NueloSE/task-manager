@@ -25,10 +25,10 @@ export default function App() {
   return (
     <>
       <header>
-        <Link to="/" className="logo">Task Manager</Link>
+        <Link to="/" className="logo"><span className="logo-icon">✓</span> Task Manager</Link>
         {user && (
           <div>
-            {user.username} <button className="secondary" onClick={logout}>Log out</button>
+            <span className="muted">{user.username}</span> <button className="secondary" onClick={logout}>Log out</button>
           </div>
         )}
       </header>

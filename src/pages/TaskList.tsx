@@ -42,16 +42,17 @@ export default function TaskList() {
         </select>
       </div>
 
-      {data.tasks.length === 0 && <p className="muted">No tasks found.</p>}
+      {data.tasks.length === 0 && <p className="empty">No tasks found.</p>}
 
       <ul className="task-list">
         {data.tasks.map((task) => (
           <li key={task.id}>
-            <Link to={`/tasks/${task.id}`} className="card">
+            <Link to={`/tasks/${task.id}`} className={`card ${task.status}`}>
               <strong>{task.title}</strong>
               <span className={`badge ${task.status}`}>{STATUS_LABELS[task.status]}</span>
-              <small className={isOverdue(task) ? 'overdue' : 'muted'}>
-                Due {formatDate(task.dueDate)} {isOverdue(task) && '(overdue)'}
+              <small className="muted">
+                Due {formatDate(task.dueDate)}
+                {isOverdue(task) && <span className="overdue-tag">Overdue</span>}
               </small>
             </Link>
           </li>

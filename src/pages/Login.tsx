@@ -25,6 +25,7 @@ export default function Login({ onLogin }: { onLogin: (user: User) => void }) {
   return (
     <form className="card narrow" onSubmit={handleSubmit}>
       <h1>{isSignUp ? 'Create an account' : 'Log in'}</h1>
+      <p className="muted">Keep track of what you need to get done.</p>
       {error && <p className="error">{error}</p>}
 
       <label>
