@@ -1,3 +1,4 @@
+import { Eye, EyeOff } from 'lucide-react';
 import { useState, type SubmitEvent } from 'react';
 import { api, type User } from '../api';
 
@@ -5,6 +6,7 @@ export default function Login({ onLogin }: { onLogin: (user: User) => void }) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
   async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
@@ -34,13 +36,22 @@ export default function Login({ onLogin }: { onLogin: (user: User) => void }) {
       </label>
       <label>
         Password
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          autoComplete={isSignUp ? 'new-password' : 'current-password'}
-        />
+        <span className="password">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete={isSignUp ? 'new-password' : 'current-password'}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </span>
       </label>
       <button>{isSignUp ? 'Sign up' : 'Log in'}</button>
 
