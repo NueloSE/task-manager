@@ -97,3 +97,4 @@ Errors come back as `{ "error": "message" }` with a status code: 400 for invalid
 - No limit on login attempts.
 - No password reset.
 - Only the API has automated tests. The frontend was tested by hand.
+- Runs locally only. Each machine gets its own SQLite database. To share data across devices, I'd deploy it with a hosted database.
