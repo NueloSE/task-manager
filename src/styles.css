@@ -33,10 +33,28 @@ header button.secondary:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
+/* Header, page and footer stacked, with the page taking the free space so the footer stays at the bottom */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 main {
+  flex: 1;
+  width: 100%;
   max-width: 760px;
   margin: 0 auto;
   padding: 32px 16px;
+}
+
+footer {
+  padding: 16px;
+  border-top: 1px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  font-size: 0.85rem;
+  text-align: center;
 }
 
 h1 {

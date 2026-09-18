@@ -47,6 +47,11 @@ export default function App() {
           </Routes>
         )}
       </main>
+
+      <footer>
+        Task Manager · Built for the PowerLabs internship assessment ·{' '}
+        <a href="https://github.com/NueloSE/task-manager">Source code</a>
+      </footer>
     </>
   );
 }
